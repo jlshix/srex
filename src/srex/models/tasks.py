@@ -1,14 +1,16 @@
+from typing import ClassVar
 import inspect
 from abc import ABC, abstractmethod
 from typing import Any, Literal, Self
 
 from jinja2 import Environment
-from pydantic import BaseModel, ValidationError
+from pydantic import BaseModel
 
 from ..utils import read_raw
 
 from .base import ListModel
 from .contexts import ExecContext
+from .results import TaskResult
 
 _JINJA2_ENV = Environment()
 _JINJA2_MARKERS = ("{{", "{%", "{#")
@@ -18,8 +20,8 @@ _TASK_REGISTRY: dict[str, type["Task"]] = {}
 class Task(BaseModel, ABC):
     """Base task definition."""
 
+    action: ClassVar[str]
     name: str
-    action: str
     ignore_errors: bool = False
 
     def __init_subclass__(cls, **kwargs: Any) -> None:
@@ -55,15 +57,6 @@ def _needs_render(value: str) -> bool:
     return any(marker in value for marker in _JINJA2_MARKERS)
 
 
-class TaskResult(BaseModel):
-    """Result of executing a task."""
-
-    task: Task
-    rc: int
-    stdout: str = ""
-    stderr: str = ""
-
-
 class ShellTask(Task):
     """Run a shell command on the remote host."""
 
@@ -74,7 +67,7 @@ class ShellTask(Task):
         result = await ctx.conn.run(self.command, check=False)
         return TaskResult(
             task=self,
-            rc=result.exit_status,
+            rc=result.returncode or 0,
             stdout=result.stdout or "",
             stderr=result.stderr or "",
         )
@@ -95,7 +88,7 @@ class FetchTask(Task):
 
 def _dispatch(item: dict[str, Any]) -> Task:
     """Instantiate the correct :class:`Task` subclass based on ``action``."""
-    action = item.get("action")
+    action = item["action"]
     task_cls = _TASK_REGISTRY.get(action)
     if task_cls is None:
         raise ValueError(f"Unknown task action: {action!r}")

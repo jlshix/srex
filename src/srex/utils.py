@@ -1,8 +1,7 @@
+from pydantic import BaseModel
 import json
 from pathlib import Path
-from typing import Any, TypeVar
-
-T = TypeVar("T")
+from typing import Any
 
 
 def read_raw(path: str | Path) -> Any:
@@ -27,6 +26,6 @@ def read_raw(path: str | Path) -> Any:
     )
 
 
-def read_file_to_model(path: str | Path, model: type[T]) -> T:
+def read_file_to_model[T: BaseModel](path: str | Path, model: type[T]) -> T:
     """Read a file and validate its contents as *model*."""
     return model.model_validate(read_raw(path))

@@ -18,7 +18,7 @@ class Host(BaseModel):
     password: SecretStr | None = None
 
     @classmethod
-    def from_netloc(cls, netloc: str) -> "Host":
+    def from_netloc(cls, netloc: str) -> Self:
         """Parse a host from a netloc string like ``user:password@hostname:port``.
 
         Uses :func:`urllib.parse.urlparse` under the hood, with ``ssh://``

@@ -1,14 +1,12 @@
-from typing import Protocol
+from typing import Any
 
 from pydantic import BaseModel
 
-class TaskProtocol(Protocol):
-    name: str
 
-class TaskResult[T: TaskProtocol](BaseModel):
+class TaskResult(BaseModel):
     """Result of executing a task."""
 
-    task: T
+    task: Any
     rc: int = 0
     stdout: str = ""
     stderr: str = ""

@@ -12,6 +12,9 @@ dependencies = [
     "typer>=0.26.3",
 ]
 
+[project.scripts]
+srex = "srex.cli:app"
+
 [dependency-groups]
 dev = [
     "pyrefly>=0.60.0",
@@ -19,3 +22,7 @@ dev = [
     "pytest-cov>=7.1.0",
     "ruff>=0.15.15",
 ]
+
+[build-system]
+requires = ["uv_build>=0.11.28,<0.12.0"]
+build-backend = "uv_build"

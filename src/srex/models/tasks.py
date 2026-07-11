@@ -41,7 +41,7 @@ class Task(BaseModel, ABC):
         untouched.  Returns a new instance (or ``self`` if nothing changed).
         """
         updates: dict[str, str] = {}
-        for field_name, field_info in self.model_fields.items():
+        for field_name, field_info in type(self).model_fields.items():
             if field_info.annotation is not str:
                 continue
             value: str = getattr(self, field_name)
